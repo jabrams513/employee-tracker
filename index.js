@@ -81,5 +81,106 @@ function viewEmployees() {
     })
 }
 
+// Function to add departments
+function addDepartment() {
+    inquirer.prompt({
+        type: "input",
+        message: "Enter department name",
+        name: "name"
+    }).then(answer => {
+        db.promise().query("INSERT INTO department SET ?", { name: answer.name }).then(([response]) => {
+            if (response.affectedRows > 0) {
+                viewDepartment();
+            }
+            else {
+                console.error("Failed to add department");
+                userPrompts();
+            }
+        })
+    })
+}
+
+// Function to add roles
+async function addRole() {
+    const [departments] = await db.promise().query("SELECT * FROM department");
+    const departmentArray = departments.map(department => ({ name: department.name, value: department.id }))
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Enter the role title",
+            name: "title"
+        },
+        {
+            type: "input",
+            message: "Enter the role salary",
+            name: "salary"
+        },
+        {
+            type: "list",
+            message: "Select the department for the role",
+            name: "department_id",
+            choices: departmentArray
+        }
+    ]).then(({ title, salary, department_id }) => {
+        const roleObj = { title, salary, department_id };
+        db.promise().query("INSERT INTO role SET ?", roleObj).then(([response]) => {
+            if (response.affectedRows > 0) {
+                viewRole();
+            }
+            else {
+                console.error("Failed to add department");
+                userPrompts();
+            }
+        });
+    })
+}
+
+// Function to add employees
+function addEmployee() {
+    db.promise().query("SELECT * FROM role").then(([roles]) => {
+        const roleArray = roles.map(role => ({ name: role.title, value: role.id }));
+        inquirer.prompt([
+            {
+                type: "input",
+                message: "Enter employee first name:",
+                name: "first_name"
+            },
+            {
+                type: "input",
+                message: "Enter employee last name:",
+                name: "last_name"
+            },
+            {
+                type: "list",
+                message: "Select employee role:",
+                name: "role_id",
+                choices: roleArray
+            },
+            {
+                type: "input",
+                message: "Enter employee's manager ID (leave blank for no manager):",
+                name: "manager_id"
+            }
+        ]).then(({ first_name, last_name, role_id, manager_id }) => {
+            const employeeObj = {
+                first_name,
+                last_name,
+                role_id,
+                manager_id: manager_id === '' ? null : manager_id
+            };
+
+            db.promise().query("INSERT INTO employee SET ?", employeeObj).then(([response]) => {
+                if (response.affectedRows > 0) {
+                    console.log("Employee added successfully!");
+                    viewEmployees();
+                } else {
+                    console.error("Failed to add employee");
+                    userPrompts();
+                }
+            });
+        });
+    });
+}
+
 // Call function to prompt user
 userPrompts();
