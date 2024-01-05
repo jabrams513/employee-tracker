@@ -182,5 +182,37 @@ function addEmployee() {
     });
 }
 
+// Function to update employee role
+async function updateEmployee() {
+    const [employees] = await db.promise().query("SELECT * FROM employee");
+    const employeeArray = employees.map(employee => ({ name: employee.first_name + " " + employee.last_name, value: employee.id }));
+    const [roles] = await db.promise().query("SELECT * FROM role");
+    const rolesArray = roles.map(role => ({ name: role.title, value: role.id }));
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "id",
+            message: "Select employee to update",
+            choices: employeeArray
+        },
+        {
+            type: "list",
+            name: "role_id",
+            message: "Select new role",
+            choices: rolesArray
+        }
+    ]).then(({ id, role_id }) => {
+        db.promise().query("UPDATE employee SET employee.role_id = ? WHERE employee.id = ?", [role_id, id]).then(([response]) => {
+            if (response.affectedRows > 0) {
+                viewEmployees();
+            }
+            else {
+                console.error("Failed to add department");
+                userPrompts();
+            }
+        });
+    })
+}
+
 // Call function to prompt user
 userPrompts();
