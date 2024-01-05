@@ -57,5 +57,29 @@ function userPrompts() {
     })
 }
 
+// Function to view departments
+function viewDepartment() {
+    db.promise().query("SELECT * FROM department").then(([response]) => {
+        console.table(response);
+        userPrompts();
+    })
+}
+
+// Function to view roles
+function viewRole() {
+    db.promise().query("SELECT * FROM role LEFT JOIN department ON role.department_id = department.id").then(([response]) => {
+        console.table(response);
+        userPrompts();
+    })
+}
+
+// Function to view employees
+function viewEmployees() {
+    db.promise().query("SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS Employee, role.title, role.salary, department.name AS Department FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id").then(([response]) => {
+        console.table(response);
+        userPrompts();
+    })
+}
+
 // Call function to prompt user
 userPrompts();
