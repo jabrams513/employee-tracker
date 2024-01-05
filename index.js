@@ -1,7 +1,8 @@
+// Import required modules
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 
-//Connection to mysql server
+//Connection to MySQL server
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -102,6 +103,7 @@ function addDepartment() {
 
 // Function to add roles
 async function addRole() {
+    // Get departments for role choices
     const [departments] = await db.promise().query("SELECT * FROM department");
     const departmentArray = departments.map(department => ({ name: department.name, value: department.id }))
     inquirer.prompt([
@@ -137,6 +139,7 @@ async function addRole() {
 
 // Function to add employees
 function addEmployee() {
+    // Get roles for the role choices
     db.promise().query("SELECT * FROM role").then(([roles]) => {
         const roleArray = roles.map(role => ({ name: role.title, value: role.id }));
         inquirer.prompt([
