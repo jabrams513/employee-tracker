@@ -76,7 +76,7 @@ function viewRole() {
 
 // Function to view employees
 function viewEmployees() {
-    db.promise().query("SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS Employee, role.title, role.salary, department.name AS Department FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id").then(([response]) => {
+    db.promise().query("SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS Employee, role.title AS Title, role.salary AS Salary, department.name AS Department, CONCAT(manager.first_name, ' ', manager.last_name) AS Manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id").then(([response]) => {
         console.table(response);
         userPrompts();
     })
@@ -145,23 +145,23 @@ function addEmployee() {
         inquirer.prompt([
             {
                 type: "input",
-                message: "Enter employee first name:",
+                message: "Enter employee first name",
                 name: "first_name"
             },
             {
                 type: "input",
-                message: "Enter employee last name:",
+                message: "Enter employee last name",
                 name: "last_name"
             },
             {
                 type: "list",
-                message: "Select employee role:",
+                message: "Select employee role",
                 name: "role_id",
                 choices: roleArray
             },
             {
                 type: "input",
-                message: "Enter employee's manager ID (leave blank for no manager):",
+                message: "Enter employee's manager ID (leave blank for no manager)",
                 name: "manager_id"
             }
         ]).then(({ first_name, last_name, role_id, manager_id }) => {
